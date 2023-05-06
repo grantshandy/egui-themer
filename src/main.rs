@@ -42,7 +42,7 @@ impl eframe::App for Themer {
         TopBottomPanel::top("themer_top_panel").show(ctx, |ui| {
             menu::bar(ui, |ui| {
                 if ui.button("Export").clicked() {
-                    let style = ctx.style().clone();
+                    let style = ctx.style();
 
                     thread::spawn(move || {
                         let Some(file) = FileDialog::new()

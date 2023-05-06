@@ -24,7 +24,7 @@ pub fn style() -> Style {
     // style.text_styles = BTreeMap<TextStyle, FontId>;
 
     // set your drag value text style:
-    // style.drag_value_text_style = TextStyle
+    // style.drag_value_text_style = TextStyle;
 
     {{#if wrap}}
     style.wrap = Some({{wrap}});

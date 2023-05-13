@@ -56,11 +56,6 @@ impl VisualsMenu {
         ));
 
         self.tab_state.show(ui);
-
-        if self.tab_state == TabState::Widgets {
-            ui.separator();
-            self.widget_tab_state.show(ui);
-        }
         ui.separator();
 
         match self.tab_state {
@@ -210,6 +205,9 @@ impl VisualsMenu {
     }
 
     fn widgets(&mut self, ui: &mut Ui, visuals: &mut Visuals) {
+        self.widget_tab_state.show(ui);
+        ui.separator();
+
         let visuals: &mut WidgetVisuals = match self.widget_tab_state {
             WidgetTabState::NonInteractive => &mut visuals.widgets.noninteractive,
             WidgetTabState::Inactive => &mut visuals.widgets.inactive,
@@ -366,21 +364,20 @@ impl WidgetTabState {
 
 fn dark_light_mode_picker<'a>(mode: &'a mut bool) -> impl Widget + 'a {
     move |ui: &mut Ui| {
-        picker_frame(ui)
-            .show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    if ui
-                        .add(Label::new("Dark Mode").sense(Sense::click()))
-                        .clicked()
-                    {
-                        *mode = !*mode;
-                    };
-                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                        ui.selectable_value(mode, false, "☀ Light");
-                        ui.selectable_value(mode, true, "🌙 Dark");
-                    });
-                });
+        picker_frame(ui, |ui: &mut Ui| {
+            ui.horizontal(|ui| {
+                if ui
+                    .add(Label::new("Dark Mode").sense(Sense::click()))
+                    .clicked()
+                {
+                    *mode = !*mode;
+                };
+                ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                    ui.selectable_value(mode, false, "☀ Light");
+                    ui.selectable_value(mode, true, "🌙 Dark");
+                })
             })
             .response
+        })
     }
 }

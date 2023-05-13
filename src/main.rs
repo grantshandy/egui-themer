@@ -1,19 +1,23 @@
 use eframe::{
     egui::{
-        Frame, Hyperlink, Layout, Margin, RichText, ScrollArea, SidePanel, Style, Ui, Visuals,
-        Widget,
+        Frame, Hyperlink, Layout, Margin, Response, RichText, ScrollArea, SidePanel, Style, Ui,
+        Visuals, Widget,
     },
     emath::Align,
     NativeOptions,
 };
 use egui_demo_lib::DemoWindows;
 use export::ExportMenu;
+use interaction::InteractionMenu;
 use misc::MiscMenu;
+use spacing::SpacingMenu;
 use visuals::VisualsMenu;
 
 mod export;
+mod interaction;
 mod misc;
 mod pickers;
+mod spacing;
 mod visuals;
 
 fn main() {
@@ -31,12 +35,14 @@ struct Themer {
     export: ExportMenu,
     visuals: VisualsMenu,
     misc: MiscMenu,
+    spacing: SpacingMenu,
+    interaction: InteractionMenu,
 }
 
 impl eframe::App for Themer {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
         SidePanel::left("themer_side_panel")
-            .min_width(315.0)
+            .min_width(370.0)
             .show(ctx, |ui| {
                 let mut style = (*ctx.style()).clone();
 
@@ -71,8 +77,13 @@ impl eframe::App for Themer {
                     self.visuals.ui(ui, &mut style.visuals);
                     ui.separator();
 
-                    self.misc.ui(ui, &mut style);
+                    self.spacing.ui(ui, &mut style.spacing);
                     ui.separator();
+
+                    self.interaction.ui(ui, &mut style.interaction);
+                    ui.separator();
+
+                    self.misc.ui(ui, &mut style);
                 });
 
                 ctx.set_style(style);
@@ -98,7 +109,7 @@ pub fn section_title<'a>(name: &'a str, url: Option<&'a str>) -> impl Widget + '
     }
 }
 
-pub fn picker_frame(ui: &Ui) -> Frame {
+pub fn picker_frame(ui: &mut Ui, show: impl Widget) -> Response {
     let style = ui.style();
 
     Frame {
@@ -107,4 +118,8 @@ pub fn picker_frame(ui: &Ui) -> Frame {
         fill: style.visuals.extreme_bg_color,
         ..Frame::none()
     }
+    .show(ui, |ui| {
+        ui.add(show);
+    })
+    .response
 }

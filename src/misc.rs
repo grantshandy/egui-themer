@@ -30,34 +30,42 @@ impl MiscMenu {
             Style::default().explanation_tooltips,
         ));
         wrap_picker(ui, &mut style.wrap);
+        picker_frame(ui, |ui: &mut Ui| {
+            ui.horizontal(|ui| {
+                ui.label("Text Styles");
+                ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                    ui.label("Edit Text Styles Manually in Export")
+                });
+            })
+            .response
+        });
     }
 }
 
 fn wrap_picker(ui: &mut Ui, wrap: &mut Option<bool>) {
     ui.add(|ui: &mut Ui| {
-        picker_frame(ui)
-            .show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    ui.label("Wrap");
-                    ui.with_layout(Layout::right_to_left(Align::Max), |ui| {
-                        if ui.add_enabled(*wrap != None, Button::new("⟲")).clicked() {
-                            *wrap = None;
-                        }
+        picker_frame(ui, |ui: &mut Ui| {
+            ui.horizontal(|ui| {
+                ui.label("Wrap");
+                ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
+                    if ui.add_enabled(*wrap != None, Button::new("⟲")).clicked() {
+                        *wrap = None;
+                    }
 
-                        ComboBox::new("Wrap", "")
-                            .selected_text(match wrap {
-                                None => "Follow Layout",
-                                Some(true) => "Default On",
-                                Some(false) => "Default Off",
-                            })
-                            .show_ui(ui, |ui| {
-                                ui.selectable_value(wrap, None, "None - Follow Layout");
-                                ui.selectable_value(wrap, Some(true), "Some(true) - Default On");
-                                ui.selectable_value(wrap, Some(false), "Some(false) - Default Off");
-                            });
-                    });
+                    ComboBox::new("Wrap", "")
+                        .selected_text(match wrap {
+                            None => "Follow Layout",
+                            Some(true) => "Default On",
+                            Some(false) => "Default Off",
+                        })
+                        .show_ui(ui, |ui| {
+                            ui.selectable_value(wrap, None, "None - Follow Layout");
+                            ui.selectable_value(wrap, Some(true), "Some(true) - Default On");
+                            ui.selectable_value(wrap, Some(false), "Some(false) - Default Off");
+                        });
                 });
             })
             .response
+        })
     });
 }

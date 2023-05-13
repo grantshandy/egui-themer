@@ -1,222 +1,375 @@
 use eframe::{
     egui::{
-        collapsing_header::CollapsingState, Button, DragValue, Label, Layout, Sense, Slider, Ui,
-        Visuals, Widget,
+        style::WidgetVisuals, Button, Label, Layout, Response, ScrollArea, Sense, Ui, Visuals,
+        Widget,
     },
     emath::Align,
-    epaint::{Color32, Rounding},
 };
 
-use crate::{add_double_row, section_title};
+use crate::{
+    picker_frame,
+    pickers::{
+        bool_picker, color_picker, color_picker_optional, float_picker, rounding_picker,
+        selection_picker, shadow_picker, stroke_picker,
+    },
+    section_title,
+};
 
 pub struct VisualsMenu {
+    tab_state: TabState,
+    widget_tab_state: WidgetTabState,
+    visuals_default: Visuals,
     window_rounding: (bool, f32),
+    menu_rounding: (bool, f32),
+    noninteractive_rounding: (bool, f32),
+    inactive_rounding: (bool, f32),
+    hovered_rounding: (bool, f32),
+    active_rounding: (bool, f32),
+    open_rounding: (bool, f32),
 }
 
 impl Default for VisualsMenu {
     fn default() -> Self {
         Self {
+            tab_state: TabState::Misc,
+            widget_tab_state: WidgetTabState::NonInteractive,
+            visuals_default: Visuals::dark(),
             window_rounding: (true, 6.0),
+            menu_rounding: (true, 6.0),
+            noninteractive_rounding: (true, 2.0),
+            inactive_rounding: (true, 2.0),
+            hovered_rounding: (true, 3.0),
+            active_rounding: (true, 2.0),
+            open_rounding: (true, 2.0),
         }
     }
 }
 
 impl VisualsMenu {
     pub fn ui(&mut self, ui: &mut Ui, visuals: &mut Visuals) {
-        let visuals_default = if visuals.dark_mode {
+        self.visuals_default = if visuals.dark_mode {
             Visuals::dark()
         } else {
             Visuals::light()
         };
-        let overall_default = Self::default();
 
         section_title(ui, "Visuals");
 
-        ui.horizontal(|ui| {
-            if ui
-                .add(Label::new("Dark Mode").sense(Sense::click()))
-                .clicked()
-            {
-                visuals.dark_mode = !visuals.dark_mode;
-            };
-            ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                ui.selectable_value(&mut visuals.dark_mode, false, "☀ Light");
-                ui.selectable_value(&mut visuals.dark_mode, true, "🌙 Dark");
-            });
-        });
+        self.tab_state.show(ui);
 
+        if self.tab_state == TabState::Widgets {
+            ui.separator();
+            self.widget_tab_state.show(ui);
+        }
+        ui.separator();
+
+        ScrollArea::both().show(ui, |ui| match self.tab_state {
+            TabState::Misc => self.misc(ui, visuals),
+            TabState::Colors => self.colors(ui, visuals),
+            TabState::Window => self.window(ui, visuals),
+            TabState::Widgets => self.widgets(ui, visuals),
+        });
+    }
+
+    fn misc(&mut self, ui: &mut Ui, visuals: &mut Visuals) {
+        ui.add(dark_light_mode_picker(&mut visuals.dark_mode));
+        ui.add(color_picker_optional(
+            "Override Text Color",
+            &mut visuals.override_text_color,
+            self.visuals_default.override_text_color,
+        ));
+        ui.add(selection_picker(
+            "Selection",
+            &mut visuals.selection,
+            self.visuals_default.selection,
+        ));
+        ui.add(rounding_picker(
+            "Menu Rounding",
+            &mut self.menu_rounding,
+            &mut visuals.menu_rounding,
+            (
+                self.visuals_default.menu_rounding,
+                Self::default().menu_rounding,
+            ),
+        ));
+        ui.add(color_picker(
+            "Panel Fill",
+            &mut visuals.panel_fill,
+            self.visuals_default.panel_fill,
+        ));
+        ui.add(shadow_picker(
+            "Popup Shadow",
+            &mut visuals.popup_shadow,
+            self.visuals_default.popup_shadow,
+        ));
+        ui.add(float_picker(
+            "Resize Corner Size",
+            &mut visuals.resize_corner_size,
+            self.visuals_default.resize_corner_size,
+        ));
+        ui.add(float_picker(
+            "Text Cursor Width",
+            &mut visuals.text_cursor_width,
+            self.visuals_default.text_cursor_width,
+        ));
+        ui.add(bool_picker(
+            "Text Cursor Preview",
+            &mut visuals.text_cursor_preview,
+            self.visuals_default.text_cursor_preview,
+        ));
+        ui.add(float_picker(
+            "Clip Rect Margin",
+            &mut visuals.clip_rect_margin,
+            self.visuals_default.clip_rect_margin,
+        ));
+        ui.add(bool_picker(
+            "Button Frame",
+            &mut visuals.button_frame,
+            self.visuals_default.button_frame,
+        ));
+        ui.add(bool_picker(
+            "Collapsing Header Frame",
+            &mut visuals.collapsing_header_frame,
+            self.visuals_default.collapsing_header_frame,
+        ));
+        ui.add(bool_picker(
+            "Indent Left Vline",
+            &mut visuals.indent_has_left_vline,
+            self.visuals_default.indent_has_left_vline,
+        ));
+        ui.add(bool_picker(
+            "Striped",
+            &mut visuals.striped,
+            self.visuals_default.striped,
+        ));
+        ui.add(bool_picker(
+            "Slider Trailing Fill",
+            &mut visuals.slider_trailing_fill,
+            self.visuals_default.slider_trailing_fill,
+        ));
+    }
+
+    fn window(&mut self, ui: &mut Ui, visuals: &mut Visuals) {
+        ui.add(rounding_picker(
+            "Rounding",
+            &mut self.window_rounding,
+            &mut visuals.window_rounding,
+            (
+                self.visuals_default.window_rounding,
+                Self::default().window_rounding,
+            ),
+        ));
+        ui.add(shadow_picker(
+            "Shadow",
+            &mut visuals.window_shadow,
+            self.visuals_default.window_shadow,
+        ));
+        ui.add(color_picker(
+            "Fill",
+            &mut visuals.window_fill,
+            self.visuals_default.window_fill,
+        ));
+        ui.add(stroke_picker(
+            "Stroke",
+            &mut visuals.window_stroke,
+            self.visuals_default.window_stroke,
+        ));
+    }
+
+    fn colors(&self, ui: &mut Ui, visuals: &mut Visuals) {
         ui.add(color_picker(
             "Hyperlink",
             &mut visuals.hyperlink_color,
-            visuals_default.hyperlink_color,
+            self.visuals_default.hyperlink_color,
         ));
         ui.add(color_picker(
             "Faint Background",
             &mut visuals.faint_bg_color,
-            visuals_default.faint_bg_color,
+            self.visuals_default.faint_bg_color,
         ));
         ui.add(color_picker(
             "Extreme Background",
             &mut visuals.extreme_bg_color,
-            visuals_default.extreme_bg_color,
+            self.visuals_default.extreme_bg_color,
         ));
         ui.add(color_picker(
             "Code Background",
             &mut visuals.code_bg_color,
-            visuals_default.code_bg_color,
+            self.visuals_default.code_bg_color,
         ));
         ui.add(color_picker(
             "Warning Foreground",
             &mut visuals.warn_fg_color,
-            visuals_default.warn_fg_color,
+            self.visuals_default.warn_fg_color,
         ));
         ui.add(color_picker(
             "Error Foreground",
             &mut visuals.error_fg_color,
-            visuals_default.error_fg_color,
+            self.visuals_default.error_fg_color,
         ));
+    }
 
-        ui.add(rounding(
-            "Window Rounding",
-            &mut self.window_rounding,
-            &mut visuals.window_rounding,
-            (
-                visuals_default.window_rounding,
-                overall_default.window_rounding,
-            ),
+    fn widgets(&mut self, ui: &mut Ui, visuals: &mut Visuals) {
+        let visuals: &mut WidgetVisuals = match self.widget_tab_state {
+            WidgetTabState::NonInteractive => &mut visuals.widgets.noninteractive,
+            WidgetTabState::Inactive => &mut visuals.widgets.inactive,
+            WidgetTabState::Hovered => &mut visuals.widgets.hovered,
+            WidgetTabState::Active => &mut visuals.widgets.active,
+            WidgetTabState::Open => &mut visuals.widgets.open,
+        };
+
+        let visuals_default: WidgetVisuals = match self.widget_tab_state {
+            WidgetTabState::NonInteractive => self.visuals_default.widgets.noninteractive,
+            WidgetTabState::Inactive => self.visuals_default.widgets.inactive,
+            WidgetTabState::Hovered => self.visuals_default.widgets.hovered,
+            WidgetTabState::Active => self.visuals_default.widgets.active,
+            WidgetTabState::Open => self.visuals_default.widgets.open,
+        };
+
+        ui.add(color_picker(
+            "Background Fill",
+            &mut visuals.bg_fill,
+            visuals_default.bg_fill,
         ));
         ui.add(color_picker(
-            "Window Fill",
-            &mut visuals.window_fill,
-            visuals_default.window_fill,
+            "Weak Background Fill",
+            &mut visuals.weak_bg_fill,
+            visuals_default.weak_bg_fill,
+        ));
+        ui.add(stroke_picker(
+            "Background Stroke",
+            &mut visuals.bg_stroke,
+            visuals_default.bg_stroke,
+        ));
+
+        let rounding_uniform: &mut (bool, f32) = match self.widget_tab_state {
+            WidgetTabState::NonInteractive => &mut self.noninteractive_rounding,
+            WidgetTabState::Inactive => &mut self.inactive_rounding,
+            WidgetTabState::Hovered => &mut self.hovered_rounding,
+            WidgetTabState::Active => &mut self.active_rounding,
+            WidgetTabState::Open => &mut self.open_rounding,
+        };
+
+        let rounding_uniform_default: (bool, f32) = match self.widget_tab_state {
+            WidgetTabState::NonInteractive => Self::default().noninteractive_rounding,
+            WidgetTabState::Inactive => Self::default().inactive_rounding,
+            WidgetTabState::Hovered => Self::default().hovered_rounding,
+            WidgetTabState::Active => Self::default().active_rounding,
+            WidgetTabState::Open => Self::default().open_rounding,
+        };
+
+        ui.add(rounding_picker(
+            "Rounding",
+            rounding_uniform,
+            &mut visuals.rounding,
+            (visuals_default.rounding, rounding_uniform_default),
         ));
     }
 }
 
-fn color_picker<'a>(title: &'a str, color: &'a mut Color32, default: Color32) -> impl Widget + 'a {
+fn dark_light_mode_picker<'a>(mode: &'a mut bool) -> impl Widget + 'a {
     move |ui: &mut Ui| {
-        let mut state =
-            CollapsingState::load_with_default_open(ui.ctx(), ui.make_persistent_id(title), false);
-
-        let resp = ui
-            .horizontal(|ui| {
-                if ui.add(Label::new(title).sense(Sense::click())).clicked() {
-                    state.toggle(ui);
-                }
-
-                ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
+        picker_frame(ui)
+            .show(ui, |ui| {
+                ui.horizontal(|ui| {
                     if ui
-                        .add_enabled(*color != default, Button::new("⟲"))
+                        .add(Label::new("Dark Mode").sense(Sense::click()))
                         .clicked()
                     {
-                        *color = default;
-                    }
-                    ui.color_edit_button_srgba(color);
+                        *mode = !*mode;
+                    };
+                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                        ui.selectable_value(mode, false, "☀ Light");
+                        ui.selectable_value(mode, true, "🌙 Dark");
+                    });
                 });
             })
-            .response;
+            .response
+    }
+}
 
-        state.show_body_unindented(ui, |ui| {
-            ui.allocate_space([ui.available_width(), 1.75].into());
-            ui.columns(4, |cols| {
-                cols[0].add(DragValue::new(&mut color[0]).prefix("R: "));
-                cols[1].add(DragValue::new(&mut color[1]).prefix("G: "));
-                cols[2].add(DragValue::new(&mut color[2]).prefix("B: "));
-                cols[3].add(DragValue::new(&mut color[3]).prefix("A: "));
-            });
-            ui.separator();
+#[derive(Copy, Clone, PartialEq, Eq)]
+enum TabState {
+    Misc,
+    Window,
+    Colors,
+    Widgets,
+}
+
+impl TabState {
+    fn show(&mut self, ui: &mut Ui) -> Response {
+        let resp = ui.columns(4, |cols| {
+            let misc = cols[0].add_enabled(*self != Self::Misc, Button::new("Misc"));
+            if misc.enabled() && misc.clicked() {
+                *self = Self::Misc;
+            }
+
+            let window = cols[1].add_enabled(*self != Self::Window, Button::new("Window"));
+            if window.enabled() && window.clicked() {
+                *self = Self::Window;
+            }
+
+            let colors = cols[2].add_enabled(*self != Self::Colors, Button::new("Colors"));
+            if colors.enabled() && colors.clicked() {
+                *self = Self::Colors;
+            }
+
+            let widgets = cols[3].add_enabled(*self != Self::Widgets, Button::new("Widgets"));
+            if widgets.enabled() && widgets.clicked() {
+                *self = Self::Widgets;
+            }
+
+            widgets
         });
+
+        ui.add_space(2.5);
 
         resp
     }
 }
 
-fn rounding<'a>(
-    title: &'a str,
-    (uniform_enabled, uniform_rounding): &'a mut (bool, f32),
-    rounding: &'a mut Rounding,
-    (default_rounding, (default_uniform_enabled, default_uniform_rounding)): (
-        Rounding,
-        (bool, f32),
-    ),
-) -> impl Widget + 'a {
-    move |ui: &mut Ui| {
-        let mut state =
-            CollapsingState::load_with_default_open(ui.ctx(), ui.make_persistent_id(title), false);
+#[derive(Copy, Clone, PartialEq, Eq)]
+enum WidgetTabState {
+    NonInteractive,
+    Inactive,
+    Hovered,
+    Active,
+    Open,
+}
 
-        let resp = ui
-            .horizontal(|ui| {
-                if ui.add(Label::new(title).sense(Sense::click())).clicked() {
-                    *uniform_enabled = !*uniform_enabled;
-                }
-                ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
-                    if ui
-                        .add_enabled(
-                            (*uniform_enabled && (*uniform_rounding != default_uniform_rounding))
-                                || (*rounding != default_rounding),
-                            Button::new("⟲"),
-                        )
-                        .clicked()
-                    {
-                        *rounding = default_rounding;
-                        (*uniform_enabled, *uniform_rounding) =
-                            (default_uniform_enabled, default_uniform_rounding);
-                    }
+impl WidgetTabState {
+    fn show(&mut self, ui: &mut Ui) -> Response {
+        let resp = ui.columns(3, |cols| {
+            let noninteractive =
+                cols[0].add_enabled(*self != Self::NonInteractive, Button::new("NonInteractive"));
+            if noninteractive.enabled() && noninteractive.clicked() {
+                *self = Self::NonInteractive;
+            }
 
-                    ui.add_enabled(
-                        *uniform_enabled,
-                        DragValue::new(uniform_rounding)
-                            .clamp_range(0.0..=40.0)
-                            .min_decimals(1)
-                            .speed(0.05),
-                    );
-                    ui.checkbox(uniform_enabled, "Uniform");
+            let inactive = cols[1].add_enabled(*self != Self::Inactive, Button::new("Inactive"));
+            if inactive.enabled() && inactive.clicked() {
+                *self = Self::Inactive;
+            }
 
-                    if *uniform_enabled {
-                        rounding.nw = *uniform_rounding;
-                        rounding.ne = *uniform_rounding;
-                        rounding.sw = *uniform_rounding;
-                        rounding.se = *uniform_rounding;
-                    }
-                });
-            })
-            .response;
+            let hovered = cols[2].add_enabled(*self != Self::Hovered, Button::new("Hovered"));
+            if hovered.enabled() && hovered.clicked() {
+                *self = Self::Hovered;
+            }
 
-        state.set_open(!*uniform_enabled);
-        state.show_body_unindented(ui, |ui| {
-            ui.allocate_space([ui.available_width(), 1.75].into());
-            ui.columns(4, |cols| {
-                cols[0].add(
-                    DragValue::new(&mut rounding.nw)
-                        .clamp_range(0.0..=40.0)
-                        .min_decimals(1)
-                        .speed(0.05)
-                        .prefix("NW: "),
-                );
-                cols[1].add(
-                    DragValue::new(&mut rounding.ne)
-                        .clamp_range(0.0..=40.0)
-                        .min_decimals(1)
-                        .speed(0.05)
-                        .prefix("NE: "),
-                );
-                cols[2].add(
-                    DragValue::new(&mut rounding.sw)
-                        .clamp_range(0.0..=40.0)
-                        .min_decimals(1)
-                        .speed(0.05)
-                        .prefix("SW: "),
-                );
-                cols[3].add(
-                    DragValue::new(&mut rounding.se)
-                        .clamp_range(0.0..=40.0)
-                        .min_decimals(1)
-                        .speed(0.05)
-                        .prefix("SE: "),
-                );
-            });
-            ui.separator();
+            let active = cols[1].add_enabled(*self != Self::Active, Button::new("Active"));
+            if active.enabled() && active.clicked() {
+                *self = Self::Active;
+            }
+
+            let open = cols[2].add_enabled(*self != Self::Open, Button::new("Open"));
+            if open.enabled() && open.clicked() {
+                *self = Self::Open;
+            }
+
+            open
         });
+
+        ui.add_space(2.5);
 
         resp
     }

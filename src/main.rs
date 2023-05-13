@@ -1,5 +1,5 @@
 use eframe::{
-    egui::{Grid, Label, Layout,  RichText, ScrollArea, SidePanel, Ui, Visuals, Widget},
+    egui::{Frame, Layout, Margin, RichText, SidePanel, Ui, Visuals},
     emath::Align,
     NativeOptions,
 };
@@ -8,6 +8,7 @@ use export::ExportMenu;
 use visuals::VisualsMenu;
 
 mod export;
+mod pickers;
 mod visuals;
 
 fn main() {
@@ -28,14 +29,16 @@ struct Themer {
 
 impl eframe::App for Themer {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
-        SidePanel::left("themer_side_panel").show(ctx, |ui| {
-            ScrollArea::vertical().show(ui, |ui| {
+        SidePanel::left("themer_side_panel")
+            .min_width(315.0)
+            .show(ctx, |ui| {
                 let mut style = (*ctx.style()).clone();
 
                 ui.heading("Egui Themer");
                 ui.label("Create an egui theme and export it to a Rust source file.");
-                Grid::new("reset_settings").num_columns(2).show(ui, |ui| {
-                    add_double_row(ui, Label::new("Reset to Default:"), |ui| {
+                ui.columns(2, |cols| {
+                    cols[0].label("Reset:");
+                    cols[1].with_layout(Layout::right_to_left(Align::Min), |ui| {
                         if ui.button("Light").clicked() {
                             style.visuals = Visuals::light();
                             self.visuals = VisualsMenu::default();
@@ -45,7 +48,7 @@ impl eframe::App for Themer {
                             style.visuals = Visuals::dark();
                             self.visuals = VisualsMenu::default();
                         }
-                    });
+                    })
                 });
                 ui.separator();
 
@@ -53,22 +56,30 @@ impl eframe::App for Themer {
                 ui.separator();
 
                 self.visuals.ui(ui, &mut style.visuals);
-                ui.separator();
 
                 ctx.set_style(style);
             });
-        });
 
         self.demo.ui(ctx);
     }
 }
 
-pub fn add_double_row(ui: &mut Ui, left: impl Widget, right: impl FnOnce(&mut Ui)) {
-    ui.add(left);
-    ui.with_layout(Layout::right_to_left(Align::Center), right);
-    ui.end_row();
+pub fn section_title(ui: &mut Ui, name: &str) {
+    ui.label(RichText::new(name).size(17.0));
+    ui.add_space(2.0);
 }
 
-pub fn section_title(ui: &mut Ui, name: &str) {
-    ui.label(RichText::new(name).size(15.0));
+pub fn picker_frame(ui: &Ui) -> Frame {
+    let style = ui.style();
+
+    Frame {
+        //     inner_margin: style.spacing.menu_margin,
+        inner_margin: Margin::same(4.0),
+        rounding: style.visuals.menu_rounding,
+        //     shadow: Shadow::NONE,
+        //     fill: style.visuals.window_fill(),
+        //     stroke: style.visuals.window_stroke(),
+        fill: style.visuals.extreme_bg_color,
+        ..Frame::none()
+    }
 }

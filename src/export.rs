@@ -1,12 +1,15 @@
 use std::{fs, path::PathBuf, time::Duration};
 
-use eframe::egui::{Context, Direction, Grid, Label, Layout, Style, Ui};
+use eframe::{
+    egui::{Context, Direction, Grid, Label, Layout, Style, Ui},
+    emath::Align,
+};
 use egui_file::FileDialog;
 use egui_notify::Toasts;
 use handlebars::{handlebars_helper, Handlebars, JsonValue};
 use rust_format::{Formatter, RustFmt};
 
-use crate::{add_double_row, section_title};
+use crate::section_title;
 
 const TEMPLATE: &str = include_str!("template.rs");
 
@@ -22,11 +25,13 @@ impl ExportMenu {
     pub fn ui(&mut self, ui: &mut Ui, ctx: &Context, style: &Style) {
         section_title(ui, "Export");
 
-        Grid::new("export_settings").num_columns(2).show(ui, |ui| {
-            add_double_row(ui, Label::new("Use eframe:"), |ui| {
+        ui.columns(2, |cols| {
+            cols[0].label("Eframe:");
+            cols[1].with_layout(Layout::right_to_left(Align::Min), |ui| {
                 ui.checkbox(&mut self.eframe, "");
             });
-            add_double_row(ui, Label::new("Path:"), |ui| {
+            cols[0].label("Path:");
+            cols[1].with_layout(Layout::right_to_left(Align::Min), |ui| {
                 if ui
                     .button(
                         self.path

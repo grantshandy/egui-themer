@@ -1,7 +1,7 @@
 use std::{fs, path::PathBuf, time::Duration};
 
 use eframe::{
-    egui::{Context, Direction, Grid, Label, Layout, Style, Ui},
+    egui::{Context, Direction, Layout, Style, Ui},
     emath::Align,
 };
 use egui_file::FileDialog;
@@ -23,7 +23,7 @@ pub struct ExportMenu {
 
 impl ExportMenu {
     pub fn ui(&mut self, ui: &mut Ui, ctx: &Context, style: &Style) {
-        section_title(ui, "Export");
+        ui.add(section_title("Export", None));
 
         ui.columns(2, |cols| {
             cols[0].label("Eframe:");

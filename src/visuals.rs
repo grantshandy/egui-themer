@@ -1,8 +1,5 @@
 use eframe::{
-    egui::{
-        style::WidgetVisuals, Button, Label, Layout, Response, ScrollArea, Sense, Ui, Visuals,
-        Widget,
-    },
+    egui::{style::WidgetVisuals, Button, Label, Layout, Response, Sense, Ui, Visuals, Widget},
     emath::Align,
 };
 
@@ -53,7 +50,10 @@ impl VisualsMenu {
             Visuals::light()
         };
 
-        section_title(ui, "Visuals");
+        ui.add(section_title(
+            "Visuals",
+            Some("https://docs.rs/egui/0.21.0/egui/style/struct.Visuals.html"),
+        ));
 
         self.tab_state.show(ui);
 
@@ -63,12 +63,12 @@ impl VisualsMenu {
         }
         ui.separator();
 
-        ScrollArea::both().show(ui, |ui| match self.tab_state {
+        match self.tab_state {
             TabState::Misc => self.misc(ui, visuals),
             TabState::Colors => self.colors(ui, visuals),
             TabState::Window => self.window(ui, visuals),
             TabState::Widgets => self.widgets(ui, visuals),
-        });
+        }
     }
 
     fn misc(&mut self, ui: &mut Ui, visuals: &mut Visuals) {
@@ -264,27 +264,16 @@ impl VisualsMenu {
             &mut visuals.rounding,
             (visuals_default.rounding, rounding_uniform_default),
         ));
-    }
-}
-
-fn dark_light_mode_picker<'a>(mode: &'a mut bool) -> impl Widget + 'a {
-    move |ui: &mut Ui| {
-        picker_frame(ui)
-            .show(ui, |ui| {
-                ui.horizontal(|ui| {
-                    if ui
-                        .add(Label::new("Dark Mode").sense(Sense::click()))
-                        .clicked()
-                    {
-                        *mode = !*mode;
-                    };
-                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                        ui.selectable_value(mode, false, "☀ Light");
-                        ui.selectable_value(mode, true, "🌙 Dark");
-                    });
-                });
-            })
-            .response
+        ui.add(stroke_picker(
+            "Foreground Stroke",
+            &mut visuals.fg_stroke,
+            visuals_default.fg_stroke,
+        ));
+        ui.add(float_picker(
+            "Expansion",
+            &mut visuals.expansion,
+            visuals_default.expansion,
+        ));
     }
 }
 
@@ -372,5 +361,26 @@ impl WidgetTabState {
         ui.add_space(2.5);
 
         resp
+    }
+}
+
+fn dark_light_mode_picker<'a>(mode: &'a mut bool) -> impl Widget + 'a {
+    move |ui: &mut Ui| {
+        picker_frame(ui)
+            .show(ui, |ui| {
+                ui.horizontal(|ui| {
+                    if ui
+                        .add(Label::new("Dark Mode").sense(Sense::click()))
+                        .clicked()
+                    {
+                        *mode = !*mode;
+                    };
+                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                        ui.selectable_value(mode, false, "☀ Light");
+                        ui.selectable_value(mode, true, "🌙 Dark");
+                    });
+                });
+            })
+            .response
     }
 }

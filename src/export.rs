@@ -65,6 +65,7 @@ impl ExportMenu {
             Layout::centered_and_justified(Direction::TopDown),
             |ui| {
                 if ui.button("Export").clicked() {
+                    #[cfg(not(target_arch = "wasm32"))]
                     if let Some(path) = &self.path {
                         match generate_source(style, self.eframe) {
                             Ok(src) => match fs::write(path, src) {

@@ -4,7 +4,6 @@ use eframe::{
         Visuals, Widget,
     },
     emath::Align,
-    NativeOptions,
 };
 use egui_demo_lib::DemoWindows;
 use export::ExportMenu;
@@ -20,13 +19,29 @@ mod pickers;
 mod spacing;
 mod visuals;
 
+#[cfg(not(target_arch = "wasm32"))]
 fn main() {
     eframe::run_native(
         "Egui Themer",
-        NativeOptions::default(),
+        egui::NativeOptions::default(),
         Box::new(|_| Box::new(Themer::default())),
     )
     .expect("run eframe native app");
+}
+
+#[cfg(target_arch = "wasm32")]
+fn main() {
+    // eframe::WebLogger::init(log::LevelFilter::Debug).ok();
+
+    wasm_bindgen_futures::spawn_local(async {
+        eframe::start_web(
+                "the_canvas_id",
+                eframe::WebOptions::default(),
+                Box::new(|_| Box::new(Themer::default())),
+            )
+            .await
+            .expect("failed to start eframe");
+    });
 }
 
 #[derive(Default)]

@@ -23,7 +23,7 @@ mod visuals;
 fn main() {
     eframe::run_native(
         "Egui Themer",
-        egui::NativeOptions::default(),
+        eframe::NativeOptions::default(),
         Box::new(|_| Box::new(Themer::default())),
     )
     .expect("run eframe native app");

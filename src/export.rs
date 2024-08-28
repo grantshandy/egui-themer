@@ -1,12 +1,13 @@
-use std::{fs, path::PathBuf, time::Duration};
-
+use std::time::Duration;
+use std::future::Future;
 use eframe::{
     egui::{Context, Direction, Layout, Style, Ui},
     emath::Align,
 };
-use egui_file::FileDialog;
 use egui_notify::Toasts;
 use handlebars::{handlebars_helper, Handlebars, JsonValue};
+use rfd::AsyncFileDialog;
+#[cfg(not(target_arch = "wasm32"))]
 use rust_format::{Formatter, RustFmt};
 
 use crate::section_title;
@@ -15,9 +16,7 @@ const TEMPLATE: &str = include_str!("template.rs");
 
 #[derive(Default)]
 pub struct ExportMenu {
-    path: Option<PathBuf>,
     toasts: Toasts,
-    file_dialog: Option<FileDialog>,
     eframe: bool,
 }
 
@@ -30,34 +29,6 @@ impl ExportMenu {
             cols[1].with_layout(Layout::right_to_left(Align::Min), |ui| {
                 ui.checkbox(&mut self.eframe, "");
             });
-            cols[0].label("Path:");
-            cols[1].with_layout(Layout::right_to_left(Align::Min), |ui| {
-                if ui
-                    .button(
-                        self.path
-                            .as_ref()
-                            .map(|f| {
-                                f.file_name()
-                                    .map(|n| n.to_str().unwrap_or("invalid!"))
-                                    .unwrap_or("Select a File!")
-                            })
-                            .unwrap_or("Select"),
-                    )
-                    .clicked()
-                {
-                    let mut dialog = FileDialog::save_file(None);
-                    dialog.open();
-                    self.file_dialog = Some(dialog);
-                }
-
-                if let Some(dialog) = &mut self.file_dialog {
-                    if dialog.show(ctx).selected() {
-                        if let Some(file) = dialog.path() {
-                            self.path = Some(file);
-                        }
-                    }
-                }
-            });
         });
 
         ui.allocate_ui_with_layout(
@@ -65,19 +36,23 @@ impl ExportMenu {
             Layout::centered_and_justified(Direction::TopDown),
             |ui| {
                 if ui.button("Export").clicked() {
-                    #[cfg(not(target_arch = "wasm32"))]
-                    if let Some(path) = &self.path {
-                        match generate_source(style, self.eframe) {
-                            Ok(src) => match fs::write(path, src) {
-                                Ok(_) => self.toasts.success("Exported!"),
-                                Err(err) => self.toasts.error(format!("Export Error: {err}")),
-                            },
-                            Err(err) => self.toasts.error(format!("Export Error: {err}")),
+                    match generate_source(style, self.eframe) {
+                        Ok(result) => {
+                            let dialog = AsyncFileDialog::new()
+                                .set_file_name("style.rs")
+                                .add_filter("RUST file", &["rs"])
+                                .save_file();
+                            execute(async move {
+                                let file = dialog.await;
+                                if let Some(file) = file {
+                                    _ = file.write(result.as_bytes()).await;
+                                }
+                            });
                         }
-                    } else {
-                        self.toasts.error("You must select a save file to export!")
+                        Err(err) => {
+                            self.toasts.error(format!("Export Error: {err}")).set_duration(Some(Duration::from_secs(5)));
+                        }
                     }
-                    .set_duration(Some(Duration::from_secs(5)));
                 }
             },
         );
@@ -98,19 +73,20 @@ fn generate_source(style: &Style, eframe: bool) -> Result<String, String> {
     reg.register_helper("color32", Box::new(color32));
     reg.register_helper("widgetvisuals", Box::new(widgetvisuals));
 
-    let raw = reg
-        .render(
-            "template",
-            &serde_json::json!({
-                "eframe": eframe,
-                "style": style,
-            }),
-        )
+    let res = reg.render(
+        "template",
+        &serde_json::json!({
+            "eframe": eframe,
+            "style": style,
+        }),
+    ).map_err(|err| err.to_string())?;
+
+    #[cfg(not(target_arch = "wasm32"))]
+    let res = RustFmt::default()
+        .format_str(res)
         .map_err(|err| err.to_string())?;
 
-    RustFmt::default()
-        .format_str(raw)
-        .map_err(|err| err.to_string())
+    Ok(res)
 }
 
 handlebars_helper!(vec2: |value: JsonValue| format!("Vec2 {{ x: {}, y: {}}}", &value["x"], &value["y"]));
@@ -158,4 +134,14 @@ fn gen_rounding(value: &JsonValue) -> String {
         "Rounding {{ nw: {}, ne: {}, sw: {}, se: {} }}",
         value["nw"], value["ne"], value["sw"], value["se"]
     )
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn execute<F: Future<Output = ()> + Send + 'static>(f: F) {
+    std::thread::spawn(move || futures::executor::block_on(f));
+}
+
+#[cfg(target_arch = "wasm32")]
+pub fn execute<F: Future<Output = ()> + 'static>(f: F) {
+    wasm_bindgen_futures::spawn_local(f);
 }

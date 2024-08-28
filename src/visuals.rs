@@ -104,13 +104,13 @@ impl VisualsMenu {
         ));
         ui.add(float_picker(
             "Text Cursor Width",
-            &mut visuals.text_cursor_width,
-            self.visuals_default.text_cursor_width,
+            &mut visuals.text_cursor.stroke.width,
+            self.visuals_default.text_cursor.stroke.width,
         ));
         ui.add(bool_picker(
             "Text Cursor Preview",
-            &mut visuals.text_cursor_preview,
-            self.visuals_default.text_cursor_preview,
+            &mut visuals.text_cursor.preview,
+            self.visuals_default.text_cursor.preview,
         ));
         ui.add(float_picker(
             "Clip Rect Margin",
@@ -362,7 +362,7 @@ impl WidgetTabState {
     }
 }
 
-fn dark_light_mode_picker<'a>(mode: &'a mut bool) -> impl Widget + 'a {
+fn dark_light_mode_picker(mode: &mut bool) -> impl Widget + '_ {
     move |ui: &mut Ui| {
         picker_frame(ui, |ui: &mut Ui| {
             ui.horizontal(|ui| {

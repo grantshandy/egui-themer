@@ -6,8 +6,8 @@ use eframe::egui;
 
 use egui::{
     epaint::Shadow,
-    style::{Interaction, Margin, Selection, Spacing, WidgetVisuals, Widgets},
-    Color32, Rounding, Stroke, Style, Vec2, Visuals,
+    style::{Interaction, Selection, Spacing, WidgetVisuals, Widgets, ScrollStyle, TextCursorStyle},
+    Color32, Margin, Rounding, Stroke, Style, Vec2, Visuals,
 };
 
 pub fn style() -> Style {
@@ -54,15 +54,20 @@ pub fn style() -> Style {
             tooltip_width: {{style.spacing.tooltip_width}},
             indent_ends_with_horizontal_line: {{style.spacing.indent_ends_with_horizontal_line}},
             combo_height: {{style.spacing.combo_height}},
-            scroll_bar_width: {{style.spacing.scroll_bar_width}},
-            scroll_handle_min_length: {{style.spacing.scroll_handle_min_length}},
-            scroll_bar_inner_margin: {{style.spacing.scroll_bar_inner_margin}},
-            scroll_bar_outer_margin: {{style.spacing.scroll_bar_outer_margin}},
+            scroll: ScrollStyle {
+                bar_width: {{style.spacing.scroll.bar_width}},
+                handle_min_length: {{style.spacing.scroll.handle_min_length}},
+                bar_inner_margin: {{style.spacing.scroll.bar_inner_margin}},
+                bar_outer_margin: {{style.spacing.scroll.bar_outer_margin}},
+                ..Default::default()
+            },
+            ..Default::default()
         },
         interaction: Interaction {
             resize_grab_radius_side: {{style.interaction.resize_grab_radius_side}},
             resize_grab_radius_corner: {{style.interaction.resize_grab_radius_corner}},
             show_tooltips_only_when_still: {{style.interaction.show_tooltips_only_when_still}},
+            ..Default::default()
         },
         visuals: Visuals {
             dark_mode: {{style.visuals.dark_mode}},
@@ -90,26 +95,35 @@ pub fn style() -> Style {
             error_fg_color: {{color32 style.visuals.error_fg_color}},
             window_rounding: {{rounding style.visuals.window_rounding}},
             window_shadow: Shadow {
-                extrusion: {{style.visuals.window_shadow.extrusion}},
+                spread: {{style.visuals.window_shadow.spread}},
                 color: {{color32 style.visuals.window_shadow.color}},
+                ..Default::default()
             },
             window_fill: {{color32 style.visuals.window_fill}},
             window_stroke: {{stroke style.visuals.window_stroke}},
             menu_rounding: {{rounding style.visuals.menu_rounding}},
             panel_fill: {{color32 style.visuals.panel_fill}},
             popup_shadow: Shadow {
-                extrusion: {{style.visuals.popup_shadow.extrusion}},
+                spread: {{style.visuals.popup_shadow.spread}},
                 color: {{color32 style.visuals.popup_shadow.color}},
+                ..Default::default()
             },
             resize_corner_size: {{style.visuals.resize_corner_size}},
-            text_cursor_width: {{style.visuals.text_cursor_width}},
-            text_cursor_preview: {{style.visuals.text_cursor_preview}},
+            text_cursor: TextCursorStyle {
+                stroke: Stroke {
+                    width: {{style.visuals.text_cursor.stroke.width}},
+                    ..Default::default()
+                },
+                preview: {{style.visuals.text_cursor.preview}},
+                ..Default::default()
+            },
             clip_rect_margin: {{style.visuals.clip_rect_margin}},
             button_frame: {{style.visuals.button_frame}},
             collapsing_header_frame: {{style.visuals.collapsing_header_frame}},
             indent_has_left_vline: {{style.visuals.indent_has_left_vline}},
             striped: {{style.visuals.striped}},
             slider_trailing_fill: {{style.visuals.slider_trailing_fill}},
+            ..Default::default()
         },
         animation_time: {{style.animation_time}},
         explanation_tooltips: {{style.explanation_tooltips}},

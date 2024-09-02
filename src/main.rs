@@ -11,6 +11,7 @@ use interaction::InteractionMenu;
 use misc::MiscMenu;
 use spacing::SpacingMenu;
 use visuals::VisualsMenu;
+use import::ImportMenu;
 
 mod export;
 mod interaction;
@@ -18,6 +19,7 @@ mod misc;
 mod pickers;
 mod spacing;
 mod visuals;
+mod import;
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() {
@@ -46,6 +48,7 @@ fn main() {
 #[derive(Default)]
 struct Themer {
     demo: DemoWindows,
+    import: ImportMenu,
     export: ExportMenu,
     visuals: VisualsMenu,
     misc: MiscMenu,
@@ -58,8 +61,6 @@ impl eframe::App for Themer {
         SidePanel::left("themer_side_panel")
             .min_width(370.0)
             .show(ctx, |ui| {
-                let mut style = (*ctx.style()).clone();
-
                 ui.hyperlink_to(
                     RichText::new("Egui Themer").heading(),
                     "https://github.com/grantshandy/egui-themer/",
@@ -69,23 +70,30 @@ impl eframe::App for Themer {
                     cols[0].label("Reset:");
                     cols[1].with_layout(Layout::right_to_left(Align::Min), |ui| {
                         if ui.button("Light").clicked() {
-                            style = Style {
+                            let style = Style {
                                 visuals: Visuals::light(),
                                 ..Default::default()
                             };
+                            ctx.set_style(style);
                             self.visuals = VisualsMenu::default();
                         }
 
                         if ui.button("Dark").clicked() {
-                            style = Style {
+                            let style = Style {
                                 visuals: Visuals::dark(),
                                 ..Default::default()
                             };
+                            ctx.set_style(style);
                             self.visuals = VisualsMenu::default();
                         }
                     })
                 });
                 ui.separator();
+
+                self.import.ui(ui, ctx);
+                ui.separator();
+
+                let mut style = (*ctx.style()).clone();
 
                 self.export.ui(ui, ctx, &style);
                 ui.separator();

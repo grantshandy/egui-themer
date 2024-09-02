@@ -65,7 +65,9 @@ impl ExportMenu {
     pub fn export(&mut self, style: &Style) {
         let generated = match (self.export_format, self.json_pretty) {
             (ExportFormat::RustSource, _) => self.generate_source(style),
-            (ExportFormat::Json, true) => serde_json::to_string_pretty(&style).map_err(|e| e.to_string()),
+            (ExportFormat::Json, true) => {
+                serde_json::to_string_pretty(&style).map_err(|e| e.to_string())
+            }
             (ExportFormat::Json, false) => serde_json::to_string(&style).map_err(|e| e.to_string()),
         };
 

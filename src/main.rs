@@ -60,7 +60,10 @@ impl eframe::App for Themer {
             .show(ctx, |ui| {
                 let mut style = (*ctx.style()).clone();
 
-                ui.heading("Egui Themer");
+                ui.hyperlink_to(
+                    RichText::new("Egui Themer").heading(),
+                    "https://github.com/grantshandy/egui-themer/",
+                );
                 ui.label("Create an egui theme and export it to a Rust source file.");
                 ui.columns(2, |cols| {
                     cols[0].label("Reset:");

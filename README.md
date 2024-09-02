@@ -1,6 +1,8 @@
 # egui-themer
 
-Create an [`egui`](https://github.com/emilk/egui) theme with an interactive gui and export it to a Rust source file for easy compile-time theming.
+Create an [`egui`](https://github.com/emilk/egui) theme while previewing the live demo, then export it to JSON or native Rust source code.
+
+[View Live](https://grantshandy.github.io/egui-themer)
 
 ![screenshot](./screenshot.png)
-*sorry, my theming skills aren't great :)*
+*my theming skills aren't great :)*

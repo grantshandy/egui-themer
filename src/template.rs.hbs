@@ -97,7 +97,8 @@ pub fn style() -> Style {
             window_shadow: Shadow {
                 spread: {{style.visuals.window_shadow.spread}},
                 color: {{color32 style.visuals.window_shadow.color}},
-                ..Default::default()
+                blur: {{style.visuals.window_shadow.blur}},
+                offset: {{vec2 style.visuals.window_shadow.offset}},
             },
             window_fill: {{color32 style.visuals.window_fill}},
             window_stroke: {{stroke style.visuals.window_stroke}},
@@ -106,13 +107,14 @@ pub fn style() -> Style {
             popup_shadow: Shadow {
                 spread: {{style.visuals.popup_shadow.spread}},
                 color: {{color32 style.visuals.popup_shadow.color}},
-                ..Default::default()
+                blur: {{style.visuals.popup_shadow.blur}},
+                offset: {{vec2 style.visuals.popup_shadow.offset}}
             },
             resize_corner_size: {{style.visuals.resize_corner_size}},
             text_cursor: TextCursorStyle {
                 stroke: Stroke {
                     width: {{style.visuals.text_cursor.stroke.width}},
-                    ..Default::default()
+                    color: {{color32 style.visuals.text_cursor.stroke.color}},
                 },
                 preview: {{style.visuals.text_cursor.preview}},
                 ..Default::default()

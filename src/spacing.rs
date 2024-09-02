@@ -14,7 +14,7 @@ impl SpacingMenu {
 
         ui.add(section_title(
             "Spacing",
-            Some("https://docs.rs/egui/0.21.0/egui/style/struct.Spacing.html"),
+            Some(crate::egui_doc_link!("/style/struct.Spacing.html")),
         ));
         ui.add(vec2_picker(
             "Item Spacing",

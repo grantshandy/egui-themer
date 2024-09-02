@@ -1,5 +1,3 @@
-use std::time::Duration;
-use std::future::Future;
 use eframe::{
     egui::{Context, Direction, Layout, Style, Ui},
     emath::Align,
@@ -9,10 +7,12 @@ use handlebars::{handlebars_helper, Handlebars, JsonValue};
 use rfd::AsyncFileDialog;
 #[cfg(not(target_arch = "wasm32"))]
 use rust_format::{Formatter, RustFmt};
+use std::future::Future;
+use std::time::Duration;
 
 use crate::section_title;
 
-const TEMPLATE: &str = include_str!("template.rs");
+const TEMPLATE: &str = include_str!("template.rs.hbs");
 
 #[derive(Default)]
 pub struct ExportMenu {
@@ -25,7 +25,7 @@ impl ExportMenu {
         ui.add(section_title("Export", None));
 
         ui.columns(2, |cols| {
-            cols[0].label("Eframe:");
+            cols[0].label("Import egui from eframe:");
             cols[1].with_layout(Layout::right_to_left(Align::Min), |ui| {
                 ui.checkbox(&mut self.eframe, "");
             });
@@ -50,7 +50,9 @@ impl ExportMenu {
                             });
                         }
                         Err(err) => {
-                            self.toasts.error(format!("Export Error: {err}")).set_duration(Some(Duration::from_secs(5)));
+                            self.toasts
+                                .error(format!("Export Error: {err}"))
+                                .set_duration(Some(Duration::from_secs(5)));
                         }
                     }
                 }
@@ -73,13 +75,15 @@ fn generate_source(style: &Style, eframe: bool) -> Result<String, String> {
     reg.register_helper("color32", Box::new(color32));
     reg.register_helper("widgetvisuals", Box::new(widgetvisuals));
 
-    let res = reg.render(
-        "template",
-        &serde_json::json!({
-            "eframe": eframe,
-            "style": style,
-        }),
-    ).map_err(|err| err.to_string())?;
+    let res = reg
+        .render(
+            "template",
+            &serde_json::json!({
+                "eframe": eframe,
+                "style": style,
+            }),
+        )
+        .map_err(|err| err.to_string())?;
 
     #[cfg(not(target_arch = "wasm32"))]
     let res = RustFmt::default()

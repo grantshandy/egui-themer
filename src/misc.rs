@@ -1,12 +1,12 @@
-use eframe::{
-    egui::{Button, ComboBox, Layout, Style, Ui},
-    emath::Align,
-};
-use eframe::egui::TextWrapMode;
 use crate::{
     picker_frame,
     pickers::{bool_picker, float_picker},
     section_title,
+};
+use eframe::egui::TextWrapMode;
+use eframe::{
+    egui::{Button, ComboBox, Layout, Style, Ui},
+    emath::Align,
 };
 
 #[derive(Copy, Clone, PartialEq, Eq, Default)]
@@ -16,7 +16,7 @@ impl MiscMenu {
     pub fn ui(&mut self, ui: &mut Ui, style: &mut Style) {
         ui.add(section_title(
             "Miscellaneous",
-            Some("https://docs.rs/egui/0.21.0/egui/style/struct.Style.html"),
+            Some(crate::egui_doc_link!("/style/struct.Style.html")),
         ));
 
         ui.add(float_picker(
@@ -43,13 +43,14 @@ impl MiscMenu {
 }
 
 fn wrap_picker(ui: &mut Ui, wrap_mode: &mut Option<TextWrapMode>) {
-    let mut wrap = wrap_mode.iter().map(|x| {
-        match x {
+    let mut wrap = wrap_mode
+        .iter()
+        .map(|x| match x {
             TextWrapMode::Extend => false,
             TextWrapMode::Wrap => true,
             TextWrapMode::Truncate => false,
-        }
-    }).next();
+        })
+        .next();
     ui.add(|ui: &mut Ui| {
         picker_frame(ui, |ui: &mut Ui| {
             ui.horizontal(|ui| {
@@ -67,9 +68,19 @@ fn wrap_picker(ui: &mut Ui, wrap_mode: &mut Option<TextWrapMode>) {
                         })
                         .show_ui(ui, |ui| {
                             let mut changed = false;
-                            changed |= ui.selectable_value(&mut wrap, None, "None - Follow Layout").changed();
-                            changed |= ui.selectable_value(&mut wrap, Some(true), "Some(true) - Default On").changed();
-                            changed |= ui.selectable_value(&mut wrap, Some(false), "Some(false) - Default Off").changed();
+                            changed |= ui
+                                .selectable_value(&mut wrap, None, "None - Follow Layout")
+                                .changed();
+                            changed |= ui
+                                .selectable_value(&mut wrap, Some(true), "Some(true) - Default On")
+                                .changed();
+                            changed |= ui
+                                .selectable_value(
+                                    &mut wrap,
+                                    Some(false),
+                                    "Some(false) - Default Off",
+                                )
+                                .changed();
                             if changed {
                                 *wrap_mode = wrap.map(|wrap| {
                                     if wrap {

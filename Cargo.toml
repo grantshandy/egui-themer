@@ -9,7 +9,7 @@ edition = "2021"
 eframe = { version = "0.28", features = ["persistence", "serde"] }
 egui_demo_lib = { version = "0.28", features = ["serde"] }
 rfd = "0.14"
-handlebars = "4.3"
+handlebars = "6.0.0"
 serde_json = "1.0"
 rust-format = "0.3"
 egui-notify = "0.15.0"
@@ -19,10 +19,3 @@ futures = "0.3.30"
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"
-
-# [profile.release]
-# panic = "abort"
-# opt-level = "z"
-# codegen-units = 1
-# lto = true
-# strip = true

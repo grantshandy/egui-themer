@@ -4,10 +4,7 @@
     flake-utils.url = "github:numtide/flake-utils";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -24,13 +21,11 @@
               targets = [ "wasm32-unknown-unknown" ];
               extensions = [ "rust-src" "rust-analyzer" ];
           };
-          RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
 
-          buildInputs = with pkgs; [
-            trunk
-            rustToolchain
-            cargo-watch
-          ];
+          buildInputs = with pkgs; [ trunk rustToolchain cargo-watch ];
+
+          RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
+          LD_LIBRARY_PATH = with pkgs; lib.makeLibraryPath [ libGL wayland libxkbcommon ];
         };
       });
 }

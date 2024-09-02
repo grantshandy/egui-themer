@@ -31,11 +31,10 @@ fn main() {
 
 #[cfg(target_arch = "wasm32")]
 fn main() {
-    // eframe::WebLogger::init(log::LevelFilter::Debug).ok();
-
     wasm_bindgen_futures::spawn_local(async {
-        eframe::WebRunner::new().start(
-                "the_canvas_id",
+        eframe::WebRunner::new()
+            .start(
+                "app",
                 eframe::WebOptions::default(),
                 Box::new(|_| Ok(Box::new(Themer::default()))),
             )
@@ -137,4 +136,11 @@ pub fn picker_frame(ui: &mut Ui, show: impl Widget) -> Response {
         ui.add(show);
     })
     .response
+}
+
+#[macro_export]
+macro_rules! egui_doc_link {
+    ($e:expr) => {
+        concat!("https://docs.rs/egui/0.28.1/egui", $e)
+    };
 }

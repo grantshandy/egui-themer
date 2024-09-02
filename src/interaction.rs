@@ -14,7 +14,7 @@ impl InteractionMenu {
 
         ui.add(section_title(
             "Interaction",
-            Some("https://docs.rs/egui/0.21.0/egui/style/struct.Interaction.html"),
+            Some(crate::egui_doc_link!("/style/struct.Interaction.html")),
         ));
         ui.add(float_picker(
             "Resize Grab Radius - Side",

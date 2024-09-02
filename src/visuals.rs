@@ -52,7 +52,7 @@ impl VisualsMenu {
 
         ui.add(section_title(
             "Visuals",
-            Some("https://docs.rs/egui/0.21.0/egui/style/struct.Visuals.html"),
+            Some(crate::egui_doc_link!("/style/struct.Visuals.html")),
         ));
 
         self.tab_state.show(ui);

@@ -4,7 +4,9 @@ use eframe::egui;
 use eframe::egui::Margin;
 use egui::{
     epaint::Shadow,
-    style::{Interaction, Selection, Spacing, WidgetVisuals, Widgets, ScrollStyle, TextCursorStyle},
+    style::{
+        Interaction, ScrollStyle, Selection, Spacing, TextCursorStyle, WidgetVisuals, Widgets,
+    },
     Color32, Rounding, Stroke, Style, Vec2, Visuals,
 };
 

@@ -14,7 +14,8 @@ fn dark_default() {
         serde_json::to_string_pretty(&Style {
             visuals: Visuals::dark(),
             ..Default::default()
-        }).unwrap(),
+        })
+        .unwrap(),
     );
 }
 
@@ -27,6 +28,7 @@ fn light_default() {
         serde_json::to_string_pretty(&Style {
             visuals: Visuals::light(),
             ..Default::default()
-        }).unwrap(),
+        })
+        .unwrap(),
     );
 }

@@ -24,7 +24,7 @@ fn main() {
     eframe::run_native(
         "Egui Themer",
         eframe::NativeOptions::default(),
-        Box::new(|_| Box::new(Themer::default())),
+        Box::new(|_| Ok(Box::new(Themer::default()))),
     )
     .expect("run eframe native app");
 }
@@ -34,10 +34,10 @@ fn main() {
     // eframe::WebLogger::init(log::LevelFilter::Debug).ok();
 
     wasm_bindgen_futures::spawn_local(async {
-        eframe::start_web(
+        eframe::WebRunner::new().start(
                 "the_canvas_id",
                 eframe::WebOptions::default(),
-                Box::new(|_| Box::new(Themer::default())),
+                Box::new(|_| Ok(Box::new(Themer::default()))),
             )
             .await
             .expect("failed to start eframe");

@@ -90,7 +90,7 @@ pub fn rounding_picker<'a>(
                         ui.add_enabled(
                             *uniform_enabled,
                             DragValue::new(uniform_rounding)
-                                .clamp_range(0.0..=25.0)
+                                .range(0.0..=25.0)
                                 .min_decimals(1)
                                 .speed(0.05),
                         );
@@ -112,28 +112,28 @@ pub fn rounding_picker<'a>(
                 ui.columns(4, |cols| {
                     cols[0].add(
                         DragValue::new(&mut rounding.nw)
-                            .clamp_range(0.0..=40.0)
+                            .range(0.0..=40.0)
                             .min_decimals(1)
                             .speed(0.05)
                             .prefix("NW:"),
                     );
                     cols[1].add(
                         DragValue::new(&mut rounding.ne)
-                            .clamp_range(0.0..=40.0)
+                            .range(0.0..=40.0)
                             .min_decimals(1)
                             .speed(0.05)
                             .prefix("NE:"),
                     );
                     cols[2].add(
                         DragValue::new(&mut rounding.sw)
-                            .clamp_range(0.0..=40.0)
+                            .range(0.0..=40.0)
                             .min_decimals(1)
                             .speed(0.05)
                             .prefix("SW:"),
                     );
                     cols[3].add(
                         DragValue::new(&mut rounding.se)
-                            .clamp_range(0.0..=40.0)
+                            .range(0.0..=40.0)
                             .min_decimals(1)
                             .speed(0.05)
                             .prefix("SE:"),
@@ -174,8 +174,8 @@ pub fn shadow_picker<'a>(
                         }
                         ui.color_edit_button_srgba(&mut shadow.color);
                         ui.add(
-                            DragValue::new(&mut shadow.extrusion)
-                                .clamp_range(0.0..=40.0)
+                            DragValue::new(&mut shadow.spread)
+                                .range(0.0..=40.0)
                                 .min_decimals(1)
                                 .speed(0.05),
                         );
@@ -222,7 +222,7 @@ pub fn stroke_picker<'a>(
                         ui.color_edit_button_srgba(&mut stroke.color);
                         ui.add(
                             DragValue::new(&mut stroke.width)
-                                .clamp_range(0.0..=40.0)
+                                .range(0.0..=40.0)
                                 .min_decimals(1)
                                 .speed(0.05),
                         );
@@ -254,7 +254,7 @@ pub fn float_picker<'a>(title: &'a str, float: &'a mut f32, default: f32) -> imp
                     }
                     ui.add(
                         DragValue::new(float)
-                            .clamp_range(0.0..=1000.0)
+                            .range(0.0..=1000.0)
                             .min_decimals(1)
                             .speed(0.05),
                     )
@@ -312,7 +312,7 @@ pub fn selection_picker<'a>(
                         ui.color_edit_button_srgba(&mut selection.stroke.color);
                         ui.add(
                             DragValue::new(&mut selection.stroke.width)
-                                .clamp_range(0.0..=40.0)
+                                .range(0.0..=40.0)
                                 .min_decimals(1)
                                 .speed(0.05),
                         );
@@ -337,7 +337,7 @@ pub fn selection_picker<'a>(
                         ui.color_edit_button_srgba(&mut selection.stroke.color);
                         ui.add(
                             DragValue::new(&mut selection.stroke.width)
-                                .clamp_range(0.0..=40.0)
+                                .range(0.0..=40.0)
                                 .min_decimals(1)
                                 .speed(0.05)
                                 .prefix("Width: "),
@@ -417,14 +417,14 @@ pub fn vec2_picker<'a>(title: &'a str, vec: &'a mut Vec2, default: Vec2) -> impl
                     ui.add(
                         DragValue::new(&mut vec.y)
                             .prefix("Y:")
-                            .clamp_range(0.0..=100.0)
+                            .range(0.0..=100.0)
                             .min_decimals(1)
                             .speed(0.05),
                     );
                     ui.add(
                         DragValue::new(&mut vec.x)
                             .prefix("X:")
-                            .clamp_range(0.0..=100.0)
+                            .range(0.0..=100.0)
                             .min_decimals(1)
                             .speed(0.05),
                     )
@@ -455,28 +455,28 @@ pub fn margin_picker<'a>(
                     ui.add(
                         DragValue::new(&mut margin.left)
                             .prefix("⬅:")
-                            .clamp_range(0.0..=100.0)
+                            .range(0.0..=100.0)
                             .min_decimals(1)
                             .speed(0.05),
                     );
                     ui.add(
                         DragValue::new(&mut margin.right)
                             .prefix("➡:")
-                            .clamp_range(0.0..=100.0)
+                            .range(0.0..=100.0)
                             .min_decimals(1)
                             .speed(0.05),
                     );
                     ui.add(
                         DragValue::new(&mut margin.top)
                             .prefix("⬆:")
-                            .clamp_range(0.0..=100.0)
+                            .range(0.0..=100.0)
                             .min_decimals(1)
                             .speed(0.05),
                     );
                     ui.add(
                         DragValue::new(&mut margin.bottom)
                             .prefix("⬇:")
-                            .clamp_range(0.0..=100.0)
+                            .range(0.0..=100.0)
                             .min_decimals(1)
                             .speed(0.05),
                     )
@@ -487,7 +487,7 @@ pub fn margin_picker<'a>(
     }
 }
 
-fn color_row<'a>(color: &'a mut Color32) -> impl Widget + 'a {
+fn color_row(color: &mut Color32) -> impl Widget + '_ {
     move |ui: &mut Ui| {
         ui.columns(4, |cols| {
             cols[0].add(DragValue::new(&mut color[0]).prefix("R:"));

@@ -89,23 +89,23 @@ impl SpacingMenu {
         ));
         ui.add(float_picker(
             "Scroll Bar Width",
-            &mut spacing.scroll_bar_width,
-            default.scroll_bar_width,
+            &mut spacing.scroll.bar_width,
+            default.scroll.bar_width,
         ));
         ui.add(float_picker(
             "Scroll Bar Handle Min Length",
-            &mut spacing.scroll_handle_min_length,
-            default.scroll_handle_min_length,
+            &mut spacing.scroll.handle_min_length,
+            default.scroll.handle_min_length,
         ));
         ui.add(float_picker(
             "Scroll Bar Inner Margin",
-            &mut spacing.scroll_bar_inner_margin,
-            default.scroll_bar_inner_margin,
+            &mut spacing.scroll.bar_inner_margin,
+            default.scroll.bar_inner_margin,
         ));
         ui.add(float_picker(
             "Scroll Bar Outer Margin",
-            &mut spacing.scroll_bar_outer_margin,
-            default.scroll_bar_outer_margin,
+            &mut spacing.scroll.bar_outer_margin,
+            default.scroll.bar_outer_margin,
         ));
     }
 }

@@ -95,6 +95,7 @@ impl eframe::App for Themer {
 
         SidePanel::left("themer_side_panel")
             .min_width(370.0)
+            .max_width(ctx.available_rect().width() / 2.0)
             .show(ctx, |ui| {
                 ui.add_space(10.0);
                 ui.hyperlink_to(
@@ -106,9 +107,9 @@ impl eframe::App for Themer {
                 ui.label("Create an egui theme with live updates then export it to machine-readable Rust source or JSON files.");
                 ui.add_space(5.0);
 
-                ui.columns(2, |cols| {
-                    cols[0].label("Reset:");
-                    cols[1].with_layout(Layout::right_to_left(Align::Min), |ui| {
+                ui.horizontal(|ui| {
+                    ui.label("Reset");
+                    ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
                         if ui.button("Default Light").clicked() {
                             ctx.set_style(Style {
                                 visuals: Visuals::light(),
@@ -126,6 +127,7 @@ impl eframe::App for Themer {
                         }
                     });
                 });
+
                 ui.separator();
 
                 self.import.ui(ui, ctx, self.toasts_tx.clone());

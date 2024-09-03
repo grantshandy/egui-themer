@@ -56,7 +56,6 @@ impl VisualsMenu {
         ));
 
         self.tab_state.show(ui);
-        ui.separator();
 
         match self.tab_state {
             TabState::Misc => self.misc(ui, visuals),
@@ -206,7 +205,6 @@ impl VisualsMenu {
 
     fn widgets(&mut self, ui: &mut Ui, visuals: &mut Visuals) {
         self.widget_tab_state.show(ui);
-        ui.separator();
 
         let visuals: &mut WidgetVisuals = match self.widget_tab_state {
             WidgetTabState::NonInteractive => &mut visuals.widgets.noninteractive,

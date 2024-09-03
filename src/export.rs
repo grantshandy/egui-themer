@@ -1,4 +1,4 @@
-use std::{future::Future, time::Duration};
+use std::time::Duration;
 
 use eframe::{
     egui::{ComboBox, Direction, Layout, Style, Ui},
@@ -11,8 +11,6 @@ use rfd::AsyncFileDialog;
 #[cfg(not(target_arch = "wasm32"))]
 use rust_format::{Formatter, RustFmt};
 
-use crate::section_title;
-
 const TEMPLATE: &str = include_str!("template.rs.hbs");
 
 #[derive(Default)]
@@ -24,35 +22,56 @@ pub struct ExportMenu {
 
 impl ExportMenu {
     pub fn ui(&mut self, ui: &mut Ui, style: &Style, toasts: &mut Toasts) {
-        ui.add(section_title("Export", None));
+        ui.add(crate::section_title("Export", None));
 
-        ui.with_layout(Layout::top_down(Align::Max), |ui| {
-            ui.checkbox(&mut self.eframe, "Eframe Support");
+        ui.horizontal(|ui| {
+            ui.label("Export Format");
 
-            ComboBox::from_label("Export Format")
-                .selected_text(match self.export_format {
-                    ExportFormat::RustSource => "Rust Source Code",
-                    ExportFormat::Json => "JSON",
-                })
-                .show_ui(ui, |ui| {
-                    ui.selectable_value(
-                        &mut self.export_format,
-                        ExportFormat::RustSource,
-                        "Rust Source Code",
-                    );
-                    ui.selectable_value(&mut self.export_format, ExportFormat::Json, "JSON");
-                });
-
-            if self.export_format == ExportFormat::Json {
-                ui.checkbox(&mut self.json_pretty, "Pretty JSON");
-            }
+            ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
+                ComboBox::from_label("")
+                    .selected_text(self.export_format.name())
+                    .show_ui(ui, |ui| {
+                        ui.selectable_value(
+                            &mut self.export_format,
+                            ExportFormat::RustSource,
+                            ExportFormat::RustSource.name(),
+                        );
+                        ui.selectable_value(
+                            &mut self.export_format,
+                            ExportFormat::Json,
+                            ExportFormat::Json.name(),
+                        );
+                    });
+            });
         });
+
+        match self.export_format {
+            ExportFormat::RustSource => {
+                ui.horizontal(|ui| {
+                    ui.label("Eframe Support");
+                    ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
+                        ui.checkbox(&mut self.eframe, "")
+                    });
+                });
+            }
+            ExportFormat::Json => {
+                ui.horizontal(|ui| {
+                    ui.label("Pretty JSON");
+                    ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
+                        ui.checkbox(&mut self.json_pretty, "")
+                    });
+                });
+            }
+        }
 
         ui.allocate_ui_with_layout(
             [ui.available_width(), 0.0].into(),
             Layout::centered_and_justified(Direction::TopDown),
             |ui| {
-                if ui.button("Export").clicked() {
+                if ui
+                    .button(format!("Export {}", self.export_format.name()))
+                    .clicked()
+                {
                     self.export(style, toasts);
                 }
             },
@@ -71,16 +90,12 @@ impl ExportMenu {
         match generated {
             Ok(result) => {
                 let dialog = AsyncFileDialog::new()
-                    .set_file_name(format!("style.{}", self.export_format.file_extension()))
-                    .add_filter(
-                        self.export_format.description(),
-                        &[self.export_format.file_extension()],
-                    )
+                    .set_file_name(format!("style.{}", self.export_format.extension()))
+                    .add_filter(self.export_format.name(), &[self.export_format.extension()])
                     .save_file();
 
-                execute(async move {
-                    let file = dialog.await;
-                    if let Some(file) = file {
+                crate::execute_future(async move {
+                    if let Some(file) = dialog.await {
                         _ = file.write(result.as_bytes()).await;
                     }
                 });
@@ -132,17 +147,17 @@ enum ExportFormat {
 }
 
 impl ExportFormat {
-    pub fn file_extension(self) -> &'static str {
+    pub fn name(self) -> &'static str {
         match self {
-            ExportFormat::RustSource => "rs",
-            ExportFormat::Json => "json",
+            ExportFormat::RustSource => "Rust Source",
+            ExportFormat::Json => "JSON",
         }
     }
 
-    pub fn description(self) -> &'static str {
+    pub fn extension(self) -> &'static str {
         match self {
-            ExportFormat::RustSource => "Rust Source Code",
-            ExportFormat::Json => "JSON",
+            ExportFormat::RustSource => "rs",
+            ExportFormat::Json => "json",
         }
     }
 }
@@ -192,14 +207,4 @@ fn gen_rounding(value: &JsonValue) -> String {
         "Rounding {{ nw: {}, ne: {}, sw: {}, se: {} }}",
         value["nw"], value["ne"], value["sw"], value["se"]
     )
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-pub fn execute<F: Future<Output = ()> + Send + 'static>(f: F) {
-    std::thread::spawn(move || futures::executor::block_on(f));
-}
-
-#[cfg(target_arch = "wasm32")]
-pub fn execute<F: Future<Output = ()> + 'static>(f: F) {
-    wasm_bindgen_futures::spawn_local(f);
 }

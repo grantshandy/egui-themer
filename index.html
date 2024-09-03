@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<head>
+    <title>egui-themer</title>
+    
+<script type="module" nonce="xv6gcSlvEHEunYeVrtfpBA==">
+import init, * as bindings from 'https://grantshandy.github.io/egui-themer/egui-themer-670050a1dbe64db1.js';
+const wasm = await init('https://grantshandy.github.io/egui-themer/egui-themer-670050a1dbe64db1_bg.wasm');
+
+
+window.wasmBindings = bindings;
+
+
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+</script>
+    <base href="https://grantshandy.github.io/egui-themer/" />
+    <style>
+        html {
+            touch-action: manipulation;
+        }
+
+        body {
+
+            background: #909090;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #404040;
+            }
+        }
+
+        html,
+        body {
+            overflow: hidden;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 100%;
+            width: 100%;
+        }
+
+        canvas {
+            margin-right: auto;
+            margin-left: auto;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .centered {
+            margin-right: auto;
+            margin-left: auto;
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #f0f0f0;
+            font-size: 24px;
+            font-family: Ubuntu-Light, Helvetica, sans-serif;
+            text-align: center;
+        }
+
+        /* ---------------------------------------------- */
+        /* Loading animation from https://loading.io/css/ */
+        .lds-dual-ring {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+        }
+
+        .lds-dual-ring:after {
+            content: " ";
+            display: block;
+            width: 24px;
+            height: 24px;
+            margin: 0px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            border-color: #fff transparent #fff transparent;
+            animation: lds-dual-ring 1.2s linear infinite;
+        }
+
+        @keyframes lds-dual-ring {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
+<link rel="modulepreload" href="https://grantshandy.github.io/egui-themer/egui-themer-670050a1dbe64db1.js" crossorigin=anonymous integrity="sha384-/MmGzX64xQV7o3SPfG/DLWB38Ov5hpxpKYp6xHpngKaiiA5pBmu3ZEoMpDuv9Noq">
+<link rel="preload" href="https://grantshandy.github.io/egui-themer/egui-themer-670050a1dbe64db1_bg.wasm" crossorigin=anonymous integrity="sha384-Ut1EGHVRRtZKxEWi4z6dN8EUaLUyLwDH3MWySFMeOe472lQtATSyxuklxnNwFPUn" as="fetch" type="application/wasm"></head>
+
+<body>
+    <canvas id="app"></canvas>
+</body>
+
+</html>
+
+<!-- Powered by egui: https://github.com/emilk/egui/ -->

@@ -40,7 +40,7 @@ fn main() {
             .start(
                 "app",
                 eframe::WebOptions::default(),
-                Box::new(|_| Ok(Box::new(Themer::default()))),
+                Box::new(|_| Ok(Box::new(Themer::new()))),
             )
             .await
             .expect("failed to start eframe");

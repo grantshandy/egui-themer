@@ -1,7 +1,7 @@
 use std::{future::Future, time::Duration};
 
 use eframe::{
-    egui::{ComboBox, Context, Direction, Layout, Style, Ui},
+    egui::{ComboBox, Direction, Layout, Style, Ui},
     emath::Align,
 };
 use egui_notify::Toasts;
@@ -17,14 +17,13 @@ const TEMPLATE: &str = include_str!("template.rs.hbs");
 
 #[derive(Default)]
 pub struct ExportMenu {
-    toasts: Toasts,
     eframe: bool,
     export_format: ExportFormat,
     json_pretty: bool,
 }
 
 impl ExportMenu {
-    pub fn ui(&mut self, ui: &mut Ui, ctx: &Context, style: &Style) {
+    pub fn ui(&mut self, ui: &mut Ui, style: &Style, toasts: &mut Toasts) {
         ui.add(section_title("Export", None));
 
         ui.with_layout(Layout::top_down(Align::Max), |ui| {
@@ -54,15 +53,13 @@ impl ExportMenu {
             Layout::centered_and_justified(Direction::TopDown),
             |ui| {
                 if ui.button("Export").clicked() {
-                    self.export(style);
+                    self.export(style, toasts);
                 }
             },
         );
-
-        self.toasts.show(ctx);
     }
 
-    pub fn export(&mut self, style: &Style) {
+    pub fn export(&mut self, style: &Style, toasts: &mut Toasts) {
         let generated = match (self.export_format, self.json_pretty) {
             (ExportFormat::RustSource, _) => self.generate_source(style),
             (ExportFormat::Json, true) => {
@@ -89,7 +86,7 @@ impl ExportMenu {
                 });
             }
             Err(err) => {
-                self.toasts
+                toasts
                     .error(format!("Export Error: {err}"))
                     .set_duration(Some(Duration::from_secs(5)));
             }
